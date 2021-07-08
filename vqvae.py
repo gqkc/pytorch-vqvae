@@ -9,6 +9,7 @@ from datasets import MiniImagenet
 
 from tensorboardX import SummaryWriter
 
+
 def train(data_loader, model, optimizer, args, writer):
     for images, _ in data_loader:
         images = images.to(args.device)
@@ -33,6 +34,7 @@ def train(data_loader, model, optimizer, args, writer):
         optimizer.step()
         args.steps += 1
 
+
 def test(data_loader, model, args, writer):
     with torch.no_grad():
         loss_recons, loss_vq = 0., 0.
@@ -51,11 +53,13 @@ def test(data_loader, model, args, writer):
 
     return loss_recons.item(), loss_vq.item()
 
+
 def generate_samples(images, model, args):
     with torch.no_grad():
         images = images.to(args.device)
         x_tilde, _, _ = model(images)
     return x_tilde
+
 
 def main(args):
     writer = SummaryWriter('./logs/{0}'.format(args.output_folder))
@@ -69,23 +73,23 @@ def main(args):
         if args.dataset == 'mnist':
             # Define the train & test datasets
             train_dataset = datasets.MNIST(args.data_folder, train=True,
-                download=True, transform=transform)
+                                           download=True, transform=transform)
             test_dataset = datasets.MNIST(args.data_folder, train=False,
-                transform=transform)
+                                          transform=transform)
             num_channels = 1
         elif args.dataset == 'fashion-mnist':
             # Define the train & test datasets
             train_dataset = datasets.FashionMNIST(args.data_folder,
-                train=True, download=True, transform=transform)
+                                                  train=True, download=True, transform=transform)
             test_dataset = datasets.FashionMNIST(args.data_folder,
-                train=False, transform=transform)
+                                                 train=False, transform=transform)
             num_channels = 1
         elif args.dataset == 'cifar10':
             # Define the train & test datasets
             train_dataset = datasets.CIFAR10(args.data_folder,
-                train=True, download=True, transform=transform)
+                                             train=True, download=True, transform=transform)
             test_dataset = datasets.CIFAR10(args.data_folder,
-                train=False, transform=transform)
+                                            train=False, transform=transform)
             num_channels = 3
         valid_dataset = test_dataset
     elif args.dataset == 'miniimagenet':
@@ -96,22 +100,22 @@ def main(args):
         ])
         # Define the train, valid & test datasets
         train_dataset = MiniImagenet(args.data_folder, train=True,
-            download=True, transform=transform)
+                                     download=True, transform=transform)
         valid_dataset = MiniImagenet(args.data_folder, valid=True,
-            download=True, transform=transform)
+                                     download=True, transform=transform)
         test_dataset = MiniImagenet(args.data_folder, test=True,
-            download=True, transform=transform)
+                                    download=True, transform=transform)
         num_channels = 3
 
     # Define the data loaders
     train_loader = torch.utils.data.DataLoader(train_dataset,
-        batch_size=args.batch_size, shuffle=False,
-        num_workers=args.num_workers, pin_memory=True)
+                                               batch_size=args.batch_size, shuffle=False,
+                                               num_workers=args.num_workers, pin_memory=True)
     valid_loader = torch.utils.data.DataLoader(valid_dataset,
-        batch_size=args.batch_size, shuffle=False, drop_last=True,
-        num_workers=args.num_workers, pin_memory=True)
+                                               batch_size=args.batch_size, shuffle=False, drop_last=True,
+                                               num_workers=args.num_workers, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_dataset,
-        batch_size=16, shuffle=True)
+                                              batch_size=16, shuffle=True)
 
     # Fixed images for Tensorboard
     fixed_images, _ = next(iter(test_loader))
@@ -128,6 +132,7 @@ def main(args):
 
     best_loss = -1.
     for epoch in range(args.num_epochs):
+        print(f"epoch {epoch}")
         train(train_loader, model, optimizer, args, writer)
         loss, _ = test(valid_loader, model, args, writer)
 
@@ -142,6 +147,7 @@ def main(args):
         with open('{0}/model_{1}.pt'.format(save_filename, epoch + 1), 'wb') as f:
             torch.save(model.state_dict(), f)
 
+
 if __name__ == '__main__':
     import argparse
     import os
@@ -151,33 +157,33 @@ if __name__ == '__main__':
 
     # General
     parser.add_argument('--data-folder', type=str,
-        help='name of the data folder')
+                        help='name of the data folder')
     parser.add_argument('--dataset', type=str,
-        help='name of the dataset (mnist, fashion-mnist, cifar10, miniimagenet)')
+                        help='name of the dataset (mnist, fashion-mnist, cifar10, miniimagenet)')
 
     # Latent space
     parser.add_argument('--hidden-size', type=int, default=256,
-        help='size of the latent vectors (default: 256)')
+                        help='size of the latent vectors (default: 256)')
     parser.add_argument('--k', type=int, default=512,
-        help='number of latent vectors (default: 512)')
+                        help='number of latent vectors (default: 512)')
 
     # Optimization
     parser.add_argument('--batch-size', type=int, default=128,
-        help='batch size (default: 128)')
+                        help='batch size (default: 128)')
     parser.add_argument('--num-epochs', type=int, default=100,
-        help='number of epochs (default: 100)')
+                        help='number of epochs (default: 100)')
     parser.add_argument('--lr', type=float, default=2e-4,
-        help='learning rate for Adam optimizer (default: 2e-4)')
+                        help='learning rate for Adam optimizer (default: 2e-4)')
     parser.add_argument('--beta', type=float, default=1.0,
-        help='contribution of commitment loss, between 0.1 and 2.0 (default: 1.0)')
+                        help='contribution of commitment loss, between 0.1 and 2.0 (default: 1.0)')
 
     # Miscellaneous
     parser.add_argument('--output-folder', type=str, default='vqvae',
-        help='name of the output folder (default: vqvae)')
+                        help='name of the output folder (default: vqvae)')
     parser.add_argument('--num-workers', type=int, default=mp.cpu_count() - 1,
-        help='number of workers for trajectories sampling (default: {0})'.format(mp.cpu_count() - 1))
+                        help='number of workers for trajectories sampling (default: {0})'.format(mp.cpu_count() - 1))
     parser.add_argument('--device', type=str, default='cpu',
-        help='set the device (cpu or cuda, default: cpu)')
+                        help='set the device (cpu or cuda, default: cpu)')
 
     args = parser.parse_args()
 
@@ -188,7 +194,7 @@ if __name__ == '__main__':
         os.makedirs('./models')
     # Device
     args.device = torch.device(args.device
-        if torch.cuda.is_available() else 'cpu')
+                               if torch.cuda.is_available() else 'cpu')
     # Slurm
     if 'SLURM_JOB_ID' in os.environ:
         args.output_folder += '-{0}'.format(os.environ['SLURM_JOB_ID'])
