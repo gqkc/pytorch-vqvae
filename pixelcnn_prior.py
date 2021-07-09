@@ -7,7 +7,7 @@ from torchvision.utils import save_image, make_grid
 
 from modules import VectorQuantizedVAE, GatedPixelCNN
 from datasets import MiniImagenet
-import datasets
+from torchvision import transforms, datasets
 from tensorboardX import SummaryWriter
 
 
