@@ -64,32 +64,36 @@ def generate_samples(images, model, args):
 def main(args):
     writer = SummaryWriter('./logs/{0}'.format(args.output_folder))
     save_filename = './models/{0}'.format(args.output_folder)
-
+    transform_3 = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ])
+    transform_1 = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.5), (0.5))
+    ])
     if args.dataset in ['mnist', 'fashion-mnist', 'cifar10']:
-        transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
+
         if args.dataset == 'mnist':
             # Define the train & test datasets
             train_dataset = datasets.MNIST(args.data_folder, train=True,
-                                           download=True, transform=transform)
+                                           download=True, transform=transform_1)
             test_dataset = datasets.MNIST(args.data_folder, train=False,
-                                          transform=transform)
+                                          transform=transform_1)
             num_channels = 1
         elif args.dataset == 'fashion-mnist':
             # Define the train & test datasets
             train_dataset = datasets.FashionMNIST(args.data_folder,
-                                                  train=True, download=True, transform=transform)
+                                                  train=True, download=True, transform=transform_1)
             test_dataset = datasets.FashionMNIST(args.data_folder,
-                                                 train=False, transform=transform)
+                                                 train=False, transform=transform_1)
             num_channels = 1
         elif args.dataset == 'cifar10':
             # Define the train & test datasets
             train_dataset = datasets.CIFAR10(args.data_folder,
-                                             train=True, download=True, transform=transform)
+                                             train=True, download=True, transform=transform_3)
             test_dataset = datasets.CIFAR10(args.data_folder,
-                                            train=False, transform=transform)
+                                            train=False, transform=transform_3)
             num_channels = 3
         valid_dataset = test_dataset
     elif args.dataset == 'miniimagenet':
