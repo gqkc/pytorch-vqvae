@@ -6,7 +6,8 @@ from torchvision.utils import save_image, make_grid
 
 from modules import VectorQuantizedVAE, to_scalar
 from datasets import MiniImagenet
-
+import wandb
+from datetime import datetime
 from tensorboardX import SummaryWriter
 
 
@@ -62,6 +63,15 @@ def generate_samples(images, model, args):
 
 
 def main(args):
+    run_name = datetime.now().strftime("train-%Y-%m-%d-%H-%M")
+
+    run = wandb.init(
+        project=f"vq_{args.dataset}",
+        entity='cmap_vq',
+        config=None,
+        name=run_name,
+    )
+
     writer = SummaryWriter('./logs/{0}'.format(args.output_folder))
     save_filename = './models/{0}'.format(args.output_folder)
     transform_3 = transforms.Compose([
@@ -125,6 +135,7 @@ def main(args):
     fixed_images, _ = next(iter(test_loader))
     fixed_grid = make_grid(fixed_images, nrow=8, range=(-1, 1), normalize=True)
     writer.add_image('original', fixed_grid, 0)
+    wandb.log({"originals": fixed_grid})
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
@@ -142,6 +153,7 @@ def main(args):
 
         reconstruction = generate_samples(fixed_images, model, args)
         grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
+        wandb.log({"reconstructions": fixed_grid})
         writer.add_image('reconstruction', grid, epoch + 1)
 
         if (epoch == 0) or (loss < best_loss):
