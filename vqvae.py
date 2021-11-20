@@ -31,7 +31,8 @@ def train(data_loader, model, optimizer, args, writer):
         # Logs
         writer.add_scalar('loss/train/reconstruction', loss_recons.item(), args.steps)
         writer.add_scalar('loss/train/quantization', loss_vq.item(), args.steps)
-
+        wandb.log({"loss/train/reconstruction": loss_recons.item()})
+        wandb.log({"loss/train/vq": loss_vq.item()})
         optimizer.step()
         args.steps += 1
 
@@ -51,6 +52,8 @@ def test(data_loader, model, args, writer):
     # Logs
     writer.add_scalar('loss/test/reconstruction', loss_recons.item(), args.steps)
     writer.add_scalar('loss/test/quantization', loss_vq.item(), args.steps)
+    wandb.log({"loss/test/reconstruction": loss_recons.item()})
+    wandb.log({"loss/test/vq": loss_vq.item()})
 
     return loss_recons.item(), loss_vq.item()
 
@@ -135,7 +138,7 @@ def main(args):
     fixed_images, _ = next(iter(test_loader))
     fixed_grid = make_grid(fixed_images, nrow=8, range=(-1, 1), normalize=True)
     writer.add_image('original', fixed_grid, 0)
-    wandb.log({"originals": fixed_grid})
+    wandb.log({"originals": wandb.Image(fixed_grid)})
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
@@ -153,7 +156,7 @@ def main(args):
 
         reconstruction = generate_samples(fixed_images, model, args)
         grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
-        wandb.log({"reconstructions": fixed_grid})
+        wandb.log({"reconstructions": wandb.Image(grid)})
         writer.add_image('reconstruction', grid, epoch + 1)
 
         if (epoch == 0) or (loss < best_loss):
