@@ -156,7 +156,8 @@ def main(args):
 
         reconstruction = generate_samples(fixed_images, model, args)
         grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
-        wandb.log({"reconstructions": wandb.Image(grid)})
+        # wandb.log({"reconstructions": wandb.Image(grid)})
+        wandb.log({"reconstructions": [wandb.Image(img) for img in fixed_images]})
         writer.add_image('reconstruction', grid, epoch + 1)
 
         if (epoch == 0) or (loss < best_loss):
