@@ -108,7 +108,7 @@ def main(args):
                                               batch_size=16, shuffle=True)
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
-    model.load_state_dict(args.vq_path)
+    model.load_state_dict(torch.load(args.vq_path, map_location=args.device)).to(args.device)
     model.eval()
 
     for key, loader in {"train": train_loader, "val": valid_loader, "test": test_loader}.items():
