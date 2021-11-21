@@ -116,7 +116,7 @@ def main(args):
     model.eval()
     model.to(args.device)
     # for key, loader in {"train": train_loader, "val": valid_loader, "test": test_loader}.items():
-    for key, loader in {"train": train_loader}.items():
+    for key, loader in {"test": test_loader}.items():
         latent_dataset = get_latent_dataset(loader, model, args.device)
         torch.save(latent_dataset, os.path.join(output_folder, f"{key}_latents.pt"))
 
