@@ -12,7 +12,7 @@ def pil_loader(path):
 
 class MiniImagenet(data.Dataset):
 
-    base_folder = '/data/miniimagenet'
+    base_folder = 'data/miniimagenet'
     filename = 'miniimagenet.zip'
     splits = {
         'train': 'train.csv',
@@ -78,7 +78,7 @@ class MiniImagenet(data.Dataset):
             for (idx, label) in enumerate(unique_labels))
 
     def _check_exists(self):
-        return (os.path.exists(self.image_folder) 
+        return (os.path.exists(self.image_folder)
             and os.path.exists(self.split_filename))
 
     def download(self):
