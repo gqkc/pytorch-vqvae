@@ -8,20 +8,22 @@ from datasets import MiniImagenet
 from modules import VectorQuantizedVAE
 
 
-def model_logits(codebook, inputs):
+def model_logits(model, imgs):
+    inputs = model.encoder(imgs)
+
+    codebook = model.codebook.embedding.weight.detach()
     embedding_size = codebook.size(1)
     inputs_flatten = inputs.view(-1, embedding_size)
-
     codebook_sqr = torch.sum(codebook ** 2, dim=1)
     inputs_sqr = torch.sum(inputs_flatten ** 2, dim=1, keepdim=True)
 
     # Compute the distances to the codebook
     distances = torch.addmm(codebook_sqr + inputs_sqr,
                             inputs_flatten, codebook.t(), alpha=-2.0, beta=1.0)
-    return distances
+    return distances.view(inputs.size(0), inputs.size(2), inputs.size(3), -1)
 
 
-def get_latent_dataset(data_loader: iter, codebook: torch.Tensor) -> TensorDataset:
+def get_latent_dataset(data_loader: iter, model: torch.nn.Module) -> TensorDataset:
     """
     Get the latent dataset over the given loader
 
@@ -38,7 +40,7 @@ def get_latent_dataset(data_loader: iter, codebook: torch.Tensor) -> TensorDatas
         features_arr = []
         labels_arr = []
         for batch, labels in data_loader:
-            features = model_logits(codebook, batch.to(codebook.device))
+            features = model_logits(model, batch)
             if type(features) == tuple:
                 features = features[0]
             features_arr.append(features.to("cpu"))
@@ -109,10 +111,9 @@ def main(args):
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
     model.load_state_dict(torch.load(args.vq_path, map_location=args.device))
-    codebook = model.codebook.embedding.weight.detach()
 
     for key, loader in {"train": train_loader, "val": valid_loader, "test": test_loader}.items():
-        latent_dataset = get_latent_dataset(loader, codebook)
+        latent_dataset = get_latent_dataset(loader, model)
         torch.save(latent_dataset, os.path.join(output_folder, f"{key}_latents.pt"))
 
     torch.save(model, os.path.join(output_folder, os.path.join(output_folder, "model.pt")))
