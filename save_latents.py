@@ -38,7 +38,7 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.
     -------
     latents dataset
     """
-    filename_logits = os.path.join(output_folder, f"{split}_logits.pt")
+    filename_logits = os.path.join(output_folder, f"{split}_logits.npy")
     filename_labels = os.path.join(output_folder, f"{split}_labels.pt")
 
     num_samples = data_loader.dataset.__len__()
@@ -46,18 +46,20 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.
     features_ = model_logits(model, batch_)
     size_all = [num_samples, ] + list(features_.size()[1:])
 
-    logits = torch.FloatTensor(
-        torch.FloatStorage.from_file(filename_logits, shared=True, size=np.prod(size_all))).reshape(size_all)
+    # logits = torch.FloatTensor(
+    #    torch.FloatStorage.from_file(filename_logits, shared=True, size=np.prod(size_all))).reshape(size_all)
+    logits = np.zeros(size_all)
     index = 0
     with torch.no_grad():
         labels_arr = []
         for i, (batch, labels) in enumerate(data_loader):
             features = model_logits(model, batch.to(device))
-            logits[range(index, index + batch.size(0))] = features.cpu()
+            logits[range(index, index + batch.size(0))] = features.cpu().numpy()
             index += batch.size(0)
             labels_arr.append(labels.to("cpu"))
         labels = torch.cat(labels_arr, axis=0)
         torch.save(labels, filename_labels)
+        np.save(filename_logits, logits)
 
 
 def main(args):
