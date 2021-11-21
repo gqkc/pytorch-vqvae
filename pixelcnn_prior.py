@@ -20,6 +20,7 @@ def train(data_loader, model, prior, optimizer, args, writer):
 
         labels = labels.to(args.device)
         logits = prior(latents, labels)
+
         logits = logits.permute(0, 2, 3, 1).contiguous()
 
         optimizer.zero_grad()
@@ -199,4 +200,5 @@ if __name__ == '__main__':
         os.makedirs('./models/{0}'.format(args.output_folder))
     args.steps = 0
 
+    os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
     main(args)
