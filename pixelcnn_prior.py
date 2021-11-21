@@ -16,7 +16,7 @@ def train(data_loader, model, prior, optimizer, args, writer):
         with torch.no_grad():
             images = images.to(args.device)
             latents = model.encode(images)
-            latents = latents.detach()
+            latents = latents.detach().to(args.device)
 
         labels = labels.to(args.device)
         logits = prior(latents, labels)
