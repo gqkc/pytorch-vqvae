@@ -52,7 +52,7 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.
 
 
 def main(args):
-    output_folder = os.path.join("data", args.dataset, args.identifier)
+    output_folder = os.path.join("output", args.dataset, args.identifier)
     os.makedirs(output_folder)
     transform_3 = transforms.Compose([
         transforms.ToTensor(),
