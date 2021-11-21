@@ -208,7 +208,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str, default='cpu',
                         help='set the device (cpu or cuda, default: cpu)')
 
-    parser.add_argument('--log_interval', type=int, default=5,
+    parser.add_argument('--log_interval', type=int, default=1,
                         help='interval of log')
     parser.add_argument('--checkpoint', type=str, default=None,
                         help='path to the vqvae checkpoint ')
