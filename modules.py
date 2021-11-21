@@ -249,6 +249,9 @@ class GatedPixelCNN(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x, label):
+        assert x.device ==label.device, "input and label should be on the same device"
+        assert self.embedding.weight.data.device == label.device, "input and label should be on the same device"
+
         shp = x.size() + (-1, )
         x = self.embedding(x.view(-1)).view(shp)  # (B, H, W, C)
         x = x.permute(0, 3, 1, 2)  # (B, C, W, W)
