@@ -23,7 +23,7 @@ def model_logits(model, imgs):
     return distances.view(inputs.size(0), inputs.size(2), inputs.size(3), -1)
 
 
-def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device:torch.device) -> TensorDataset:
+def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.device) -> TensorDataset:
     """
     Get the latent dataset over the given loader
 
@@ -53,6 +53,7 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device:torch.d
 
 def main(args):
     output_folder = os.path.join("data", args.dataset, args.identifier)
+    os.makedirs(output_folder)
     transform_3 = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
