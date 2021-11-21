@@ -53,7 +53,7 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.
         labels_arr = []
         for i, (batch, labels) in enumerate(data_loader):
             features = model_logits(model, batch.to(device))
-            logits[range(index, index + batch.size(0))] = features
+            logits[range(index, index + batch.size(0))] = features.cpu()
             index += batch.size(0)
             labels_arr.append(labels.to("cpu"))
         labels = torch.cat(labels_arr, axis=0)
