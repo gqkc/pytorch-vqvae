@@ -127,6 +127,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='VQ-VAE')
 
     # General
+    parser.add_argument('--data-folder', type=str,
+                        help='name of the data folder')
     parser.add_argument('--vq_path', type=str,
                         help='path of the vq statedict')
     parser.add_argument('--dataset', type=str,
