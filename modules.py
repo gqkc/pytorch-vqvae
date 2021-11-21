@@ -6,6 +6,7 @@ from torch.distributions import kl_divergence
 
 from functions import vq, vq_st
 
+
 def to_scalar(arr):
     if type(arr) == list:
         return [x.item() for x in arr]
@@ -71,7 +72,7 @@ class VQEmbedding(nn.Module):
     def __init__(self, K, D):
         super().__init__()
         self.embedding = nn.Embedding(K, D)
-        self.embedding.weight.data.uniform_(-1./K, 1./K)
+        self.embedding.weight.data.uniform_(-1. / K, 1. / K)
 
     def forward(self, z_e_x):
         z_e_x_ = z_e_x.permute(0, 2, 3, 1).contiguous()
@@ -84,7 +85,7 @@ class VQEmbedding(nn.Module):
         z_q_x = z_q_x_.permute(0, 3, 1, 2).contiguous()
 
         z_q_x_bar_flatten = torch.index_select(self.embedding.weight,
-            dim=0, index=indices)
+                                               dim=0, index=indices)
         z_q_x_bar_ = z_q_x_bar_flatten.view_as(z_e_x_)
         z_q_x_bar = z_q_x_bar_.permute(0, 3, 1, 2).contiguous()
 
@@ -198,7 +199,7 @@ class GatedMaskedConv2d(nn.Module):
     def forward(self, x_v, x_h, h):
         if self.mask_type == 'A':
             self.make_causal()
-
+        assert h.device == self.class_cond_embedding.weight.data.device, "h and cond on the same device"
         h = self.class_cond_embedding(h)
         h_vert = self.vert_stack(x_v)
         h_vert = h_vert[:, :, :x_v.size(-1), :]
@@ -249,10 +250,10 @@ class GatedPixelCNN(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x, label):
-        assert x.device ==label.device, "input and label should be on the same device"
+        assert x.device == label.device, "input and label should be on the same device"
         assert self.embedding.weight.data.device == label.device, "input and label should be on the same device"
 
-        shp = x.size() + (-1, )
+        shp = x.size() + (-1,)
         x = self.embedding(x.view(-1)).view(shp)  # (B, H, W, C)
         x = x.permute(0, 3, 1, 2)  # (B, C, W, W)
 
