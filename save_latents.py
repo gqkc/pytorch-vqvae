@@ -44,7 +44,7 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.
             features = model_logits(model, batch.to(device))
             if type(features) == tuple:
                 features = features[0]
-            features_arr.append(features.to("cpu"))
+            features_arr.append(features.float().to("cpu"))
             labels_arr.append(labels.to("cpu"))
         features = torch.cat(features_arr, axis=0)
         labels = torch.cat(labels_arr, axis=0)
@@ -115,7 +115,8 @@ def main(args):
     model.load_state_dict(torch.load(args.vq_path, map_location=args.device))
     model.eval()
     model.to(args.device)
-    for key, loader in {"train": train_loader, "val": valid_loader, "test": test_loader}.items():
+    # for key, loader in {"train": train_loader, "val": valid_loader, "test": test_loader}.items():
+    for key, loader in {"train": train_loader}.items():
         latent_dataset = get_latent_dataset(loader, model, args.device)
         torch.save(latent_dataset, os.path.join(output_folder, f"{key}_latents.pt"))
 
