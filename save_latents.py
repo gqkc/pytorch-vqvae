@@ -119,8 +119,8 @@ def main(args):
         latent_dataset = get_latent_dataset(loader, model, args.device)
         torch.save(latent_dataset, os.path.join(output_folder, f"{key}_latents.pt"))
 
-    torch.save(model, os.path.join(output_folder, os.path.join(output_folder, "model.pt")))
-    torch.save(model.state_dict(), os.path.join(output_folder, os.path.join(output_folder, "state_dict.pt")))
+    torch.save(model, os.path.join(output_folder, "model.pt"))
+    torch.save(model.state_dict(), os.path.join(output_folder, "state_dict.pt"))
 
 
 if __name__ == '__main__':
