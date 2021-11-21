@@ -21,14 +21,14 @@ def model_logits(codebook, inputs):
     return distances
 
 
-def get_latent_dataset(data_loader: iter, model: torch.nn.Module) -> TensorDataset:
+def get_latent_dataset(data_loader: iter, codebook: torch.Tensor) -> TensorDataset:
     """
     Get the latent dataset over the given loader
 
     Parameters
     ----------
     data_loader : loads of data
-    model : vae to use to get the latents
+    codebook : vae codebook to use to get the latents
 
     Returns
     -------
@@ -38,7 +38,7 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module) -> TensorDatas
         features_arr = []
         labels_arr = []
         for batch, labels in data_loader:
-            features = model_logits(model.codebook, batch.to(model.device))
+            features = model_logits(codebook, batch.to(codebook.device))
             if type(features) == tuple:
                 features = features[0]
             features_arr.append(features.to("cpu"))
@@ -109,11 +109,10 @@ def main(args):
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
     model.load_state_dict(torch.load(args.vq_path, map_location=args.device))
-    model.to(args.device)
-    model.eval()
+    codebook = model.codebook.weight.detach()
 
     for key, loader in {"train": train_loader, "val": valid_loader, "test": test_loader}.items():
-        latent_dataset = get_latent_dataset(loader, model)
+        latent_dataset = get_latent_dataset(loader, codebook)
         torch.save(latent_dataset, os.path.join(output_folder, f"{key}_latents.pt"))
 
     torch.save(model, os.path.join(output_folder, os.path.join(output_folder, "model.pt")))
