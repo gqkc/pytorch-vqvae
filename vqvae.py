@@ -141,6 +141,8 @@ def main(args):
     wandb.log({"original": wandb.Image(fixed_grid)})
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
+    if args.checkpoint is not None:
+        model.load_state_dict(torch.load(args.checkpoint, map_location=args.device))
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 
     # Generate the samples first once
@@ -157,7 +159,8 @@ def main(args):
         reconstruction = generate_samples(fixed_images, model, args)
         grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
         # wandb.log({"reconstructions": wandb.Image(grid)})
-        wandb.log({"reconstruction": wandb.Image(grid)})
+        if epoch % args.log_interval == 0:
+            wandb.log({"reconstruction": wandb.Image(grid)})
         writer.add_image('reconstruction', grid, epoch + 1)
 
         if (epoch == 0) or (loss < best_loss):
@@ -205,6 +208,10 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str, default='cpu',
                         help='set the device (cpu or cuda, default: cpu)')
 
+    parser.add_argument('--log_interval', type=int, default=5,
+                        help='interval of log')
+    parser.add_argument('--checkpoint', type=str, default=None,
+                        help='path to the vqvae checkpoint ')
     args = parser.parse_args()
 
     # Create logs and models folder if they don't exist
