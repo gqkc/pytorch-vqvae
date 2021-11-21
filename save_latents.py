@@ -109,7 +109,7 @@ def main(args):
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
     model.load_state_dict(torch.load(args.vq_path, map_location=args.device))
-    codebook = model.codebook.weight.detach()
+    codebook = model.codebook.embedding.weight.detach()
 
     for key, loader in {"train": train_loader, "val": valid_loader, "test": test_loader}.items():
         latent_dataset = get_latent_dataset(loader, codebook)
