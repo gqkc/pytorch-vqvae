@@ -6,6 +6,7 @@ from torchvision import transforms, datasets
 
 from datasets import MiniImagenet
 from modules import VectorQuantizedVAE
+import numpy as np
 
 
 def model_logits(model, imgs):
@@ -23,7 +24,8 @@ def model_logits(model, imgs):
     return distances.view(inputs.size(0), inputs.size(2), inputs.size(3), -1)
 
 
-def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.device) -> TensorDataset:
+def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.device, output_folder: str,
+                       split: str) -> TensorDataset:
     """
     Get the latent dataset over the given loader
 
@@ -36,19 +38,26 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.
     -------
     latents dataset
     """
-    with torch.no_grad():
-        features_arr = []
-        labels_arr = []
-        for batch, labels in data_loader:
+    filename_logits = os.path.join(output_folder, f"{split}_logits.pt")
+    filename_labels = os.path.join(output_folder, f"{split}_labels.pt")
 
+    num_samples = data_loader.dataset.__len__()
+    batch_ = next(iter(data_loader))[0]
+    features_ = model_logits(model, batch_)
+    size_all = [num_samples, ] + list(features_.size()[1:])
+
+    logits = torch.FloatTensor(
+        torch.FloatStorage.from_file(filename_logits, shared=True, size=np.prod(size_all))).reshape(size_all)
+    index = 0
+    with torch.no_grad():
+        labels_arr = []
+        for i, (batch, labels) in enumerate(data_loader):
             features = model_logits(model, batch.to(device))
-            if type(features) == tuple:
-                features = features[0]
-            features_arr.append(features.float().to("cpu"))
+            logits[range(index, index + batch.size(0))] = features
+            index += batch.size(0)
             labels_arr.append(labels.to("cpu"))
-        features = torch.cat(features_arr, axis=0)
         labels = torch.cat(labels_arr, axis=0)
-    return TensorDataset(features, labels)
+        torch.save(labels, filename_labels)
 
 
 def main(args):
@@ -116,9 +125,8 @@ def main(args):
     model.eval()
     model.to(args.device)
     # for key, loader in {"train": train_loader, "val": valid_loader, "test": test_loader}.items():
-    for key, loader in {"test": test_loader}.items():
-        latent_dataset = get_latent_dataset(loader, model, args.device)
-        torch.save(latent_dataset, os.path.join(output_folder, f"{key}_latents.pt"))
+    for key, loader in {"train": train_loader}.items():
+        get_latent_dataset(loader, model, args.device, output_folder, key)
 
     torch.save(model, os.path.join(output_folder, "model.pt"))
     torch.save(model.state_dict(), os.path.join(output_folder, "state_dict.pt"))
