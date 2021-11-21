@@ -42,7 +42,7 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.
     filename_labels = os.path.join(output_folder, f"{split}_labels.pt")
 
     num_samples = data_loader.dataset.__len__()
-    batch_ = next(iter(data_loader))[0]
+    batch_ = next(iter(data_loader))[0].to(device)
     features_ = model_logits(model, batch_)
     size_all = [num_samples, ] + list(features_.size()[1:])
 
