@@ -200,7 +200,7 @@ if __name__ == '__main__':
     # Miscellaneous
     parser.add_argument('--output-folder', type=str, default='vqvae',
                         help='name of the output folder (default: vqvae)')
-    parser.add_argument('--num-workers', type=int, default=mp.cpu_count() - 1,
+    parser.add_argument('--num-workers', type=int, default=1,
                         help='number of workers for trajectories sampling (default: {0})'.format(mp.cpu_count() - 1))
     parser.add_argument('--device', type=str, default='cpu',
                         help='set the device (cpu or cuda, default: cpu)')
