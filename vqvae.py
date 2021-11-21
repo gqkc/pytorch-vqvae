@@ -72,7 +72,7 @@ def main(args):
         project=f"vq_{args.dataset}",
         entity='cmap_vq',
         config=None,
-        name=run_name,
+        name=f"{run_name}_{args.output_folder}",
     )
 
     writer = SummaryWriter('./logs/{0}'.format(args.output_folder))
