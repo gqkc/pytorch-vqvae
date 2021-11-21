@@ -138,7 +138,7 @@ def main(args):
     fixed_images, _ = next(iter(test_loader))
     fixed_grid = make_grid(fixed_images, nrow=8, range=(-1, 1), normalize=True)
     writer.add_image('original', fixed_grid, 0)
-    wandb.log({"originals": wandb.Image(fixed_grid)})
+    wandb.log({"original": wandb.Image(fixed_grid)})
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
@@ -157,7 +157,7 @@ def main(args):
         reconstruction = generate_samples(fixed_images, model, args)
         grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
         # wandb.log({"reconstructions": wandb.Image(grid)})
-        wandb.log({"reconstructions": wandb.Image(grid)})
+        wandb.log({"reconstruction": wandb.Image(grid)})
         writer.add_image('reconstruction', grid, epoch + 1)
 
         if (epoch == 0) or (loss < best_loss):
