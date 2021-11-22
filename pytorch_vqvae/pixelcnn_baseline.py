@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from torchvision import datasets, transforms
-from modules import GatedPixelCNN
+from torchvision import transforms
+from pytorch_vqvae.modules import GatedPixelCNN
 import numpy as np
 from torchvision.utils import save_image
 import time

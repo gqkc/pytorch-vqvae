@@ -1,9 +1,7 @@
-import pytest
-
 import numpy as np
 import torch
 
-from functions import vq, vq_st
+from pytorch_vqvae.functions import vq, vq_st
 
 def test_vq_shape():
     inputs = torch.rand((2, 3, 5, 7), dtype=torch.float32, requires_grad=True)

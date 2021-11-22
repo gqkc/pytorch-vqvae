@@ -1,11 +1,10 @@
-import numpy as np
 import torch
 import torch.nn.functional as F
 from torchvision import transforms, datasets
-from torchvision.utils import save_image, make_grid
+from torchvision.utils import make_grid
 
-from modules import VectorQuantizedVAE, to_scalar
-from datasets import MiniImagenet
+from pytorch_vqvae.modules import VectorQuantizedVAE
+from pytorch_vqvae.datasets import MiniImagenet
 import wandb
 from datetime import datetime
 from tensorboardX import SummaryWriter
@@ -215,10 +214,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Create logs and models folder if they don't exist
-    if not os.path.exists('./logs'):
-        os.makedirs('./logs')
-    if not os.path.exists('./models'):
-        os.makedirs('./models')
+    if not os.path.exists('../logs'):
+        os.makedirs('../logs')
+    if not os.path.exists('../models'):
+        os.makedirs('../models')
     # Device
     args.device = torch.device(args.device
                                if torch.cuda.is_available() else 'cpu')

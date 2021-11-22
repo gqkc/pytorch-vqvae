@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.distributions.normal import Normal
 from torch.distributions import kl_divergence
 
-from functions import vq, vq_st
+from pytorch_vqvae.functions import vq, vq_st
 
 
 def to_scalar(arr):

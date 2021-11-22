@@ -5,10 +5,10 @@ import torch
 import torch.nn.functional as F
 from torch.distributions.normal import Normal
 
-from torchvision import datasets, transforms
+from torchvision import transforms
 from torchvision.utils import save_image
 
-from modules import VAE
+from pytorch_vqvae.modules import VAE
 
 
 BATCH_SIZE = 32
