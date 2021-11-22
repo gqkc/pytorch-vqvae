@@ -9,7 +9,7 @@ from pytorch_vqvae.modules import VectorQuantizedVAE
 
 
 def model_logits(model, imgs):
-    inputs = model.encoder(imgs)
+    inputs = model.encoder(imgs).permute(0, 2, 3, 1).contiguous()
 
     codebook = model.codebook.embedding.weight.detach()
     embedding_size = codebook.size(1)
@@ -20,7 +20,7 @@ def model_logits(model, imgs):
     # Compute the distances to the codebook
     distances = torch.addmm(codebook_sqr + inputs_sqr,
                             inputs_flatten, codebook.t(), alpha=-2.0, beta=1.0)
-    return distances.view(inputs.size(0), inputs.size(2), inputs.size(3), -1)
+    return distances.view(inputs.size(0), inputs.size(1), inputs.size(2), -1)
 
 
 def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.device) -> TensorDataset:
