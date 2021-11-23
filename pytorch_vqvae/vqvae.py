@@ -166,8 +166,8 @@ def main(args):
             best_loss = loss
             with open('{0}/best.pt'.format(save_filename), 'wb') as f:
                 torch.save(model.state_dict(), f)
-        with open('{0}/model_{1}.pt'.format(save_filename, epoch + 1), 'wb') as f:
-            torch.save(model.state_dict(), f)
+        # with open('{0}/model_{1}.pt'.format(save_filename, epoch + 1), 'wb') as f:
+        #    torch.save(model.state_dict(), f)
 
 
 if __name__ == '__main__':
