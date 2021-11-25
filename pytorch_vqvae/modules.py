@@ -109,7 +109,7 @@ class ResBlock(nn.Module):
 
 
 class VectorQuantizedVAE(nn.Module):
-    def __init__(self, input_dim, dim, K=512, pad=2):
+    def __init__(self, input_dim, dim, K=512, pad=1):
         super().__init__()
         self.encoder = nn.Sequential(
             nn.Conv2d(input_dim, dim, 4, 2, pad),

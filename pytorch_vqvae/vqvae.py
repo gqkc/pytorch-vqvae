@@ -139,7 +139,8 @@ def main(args):
     writer.add_image('original', fixed_grid, 0)
     wandb.log({"original": wandb.Image(fixed_grid)})
 
-    model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
+    pad = 2 if args.dataset in ["fashion-mnist", "mnist"] else 1
+    model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k, pad).to(args.device)
     if args.checkpoint is not None:
         model.load_state_dict(torch.load(args.checkpoint, map_location=args.device))
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
