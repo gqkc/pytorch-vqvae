@@ -110,8 +110,8 @@ def main(args):
                                                num_workers=args.num_workers, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_dataset,
                                               batch_size=16, shuffle=True)
-
-    model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k).to(args.device)
+    pad = 2 if args.dataset in ["fashion-mnist", "mnist"] else 1
+    model = VectorQuantizedVAE(num_channels, args.hidden_size, args.k, pad=pad).to(args.device)
     model.load_state_dict(torch.load(args.vq_path, map_location=args.device))
     model.eval()
     model.to(args.device)
