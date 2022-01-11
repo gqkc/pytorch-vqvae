@@ -111,7 +111,7 @@ def main(args):
         valid_dataset = test_dataset
     elif args.dataset == 'miniimagenet':
         transform = transforms.Compose([
-            transforms.RandomResizedCrop(128),
+            #transforms.RandomResizedCrop(128),
             #transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
