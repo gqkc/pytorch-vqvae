@@ -1,13 +1,14 @@
+from datetime import datetime
+
 import torch
 import torch.nn.functional as F
+import wandb
+from tensorboardX import SummaryWriter
 from torchvision import transforms, datasets
 from torchvision.utils import make_grid
 
-from pytorch_vqvae.modules import VectorQuantizedVAE
 from pytorch_vqvae.datasets import MiniImagenet
-import wandb
-from datetime import datetime
-from tensorboardX import SummaryWriter
+from pytorch_vqvae.modules import VectorQuantizedVAE
 
 
 def train(data_loader, model, optimizer, args, writer):
@@ -115,11 +116,11 @@ def main(args):
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
         # Define the train, valid & test datasets
-        train_dataset = MiniImagenet(args.data_folder, train=True,
+        train_dataset = MiniImagenet(args.data_folder, mode="train",
                                      download=True, transform=transform)
-        valid_dataset = MiniImagenet(args.data_folder, valid=True,
+        valid_dataset = MiniImagenet(args.data_folder, mode="validation",
                                      download=True, transform=transform)
-        test_dataset = MiniImagenet(args.data_folder, test=True,
+        test_dataset = MiniImagenet(args.data_folder, mode="test",
                                     download=True, transform=transform)
         num_channels = 3
 
