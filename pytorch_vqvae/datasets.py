@@ -1,24 +1,17 @@
-import os
-import csv
-import torch.utils.data as data
-from PIL import Image
-
-
-
-
-
-#!/usr/bin/env python3
-
 from __future__ import print_function
 
+import csv
 import os
 import pickle
 
 import numpy as np
+import requests
 import torch
 import torch.utils.data as data
-import requests
 import tqdm
+from PIL import Image
+
+# !/usr/bin/env python3
 
 CHUNK_SIZE = 1 * 1024 * 1024
 
