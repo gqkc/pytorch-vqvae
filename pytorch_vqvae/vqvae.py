@@ -111,16 +111,16 @@ def main(args):
         valid_dataset = test_dataset
     elif args.dataset == 'miniimagenet':
         transform = transforms.Compose([
-            transforms.RandomResizedCrop(128),
-            transforms.ToTensor(),
+            #transforms.RandomResizedCrop(128),
+            #transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
         # Define the train, valid & test datasets
-        train_dataset = MiniImagenet(args.data_folder, train=True,
+        train_dataset = MiniImagenet(args.data_folder, mode="train",
                                      download=True, transform=transform)
-        valid_dataset = MiniImagenet(args.data_folder, valid=True,
+        valid_dataset = MiniImagenet(args.data_folder, mode="validation",
                                      download=True, transform=transform)
-        test_dataset = MiniImagenet(args.data_folder, test=True,
+        test_dataset = MiniImagenet(args.data_folder, mode="test",
                                     download=True, transform=transform)
         num_channels = 3
 
