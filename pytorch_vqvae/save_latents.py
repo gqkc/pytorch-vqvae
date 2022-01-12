@@ -8,19 +8,9 @@ from pytorch_vqvae.datasets import MiniImagenet
 from pytorch_vqvae.modules import VectorQuantizedVAE
 
 
-def model_logits(model, imgs):
+def model_ze(model, imgs):
     inputs = model.encoder(imgs).permute(0, 2, 3, 1).contiguous()
-
-    codebook = model.codebook.embedding.weight.detach()
-    embedding_size = codebook.size(1)
-    inputs_flatten = inputs.view(-1, embedding_size)
-    codebook_sqr = torch.sum(codebook ** 2, dim=1)
-    inputs_sqr = torch.sum(inputs_flatten ** 2, dim=1, keepdim=True)
-
-    # Compute the distances to the codebook
-    distances = torch.addmm(codebook_sqr + inputs_sqr,
-                            inputs_flatten, codebook.t(), alpha=-2.0, beta=1.0)
-    return distances.view(inputs.size(0), inputs.size(1), inputs.size(2), -1)
+    return inputs
 
 
 def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.device) -> TensorDataset:
@@ -41,7 +31,7 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.
         labels_arr = []
         for batch, labels in data_loader:
 
-            features = model_logits(model, batch.to(device))
+            features = model_ze(model, batch.to(device))
             if type(features) == tuple:
                 features = features[0]
             features_arr.append(features.to("cpu"))
