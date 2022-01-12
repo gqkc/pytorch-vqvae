@@ -2,6 +2,27 @@
 ### Course Project for [IFT 6135 - Representation Learning](https://ift6135h18.wordpress.com/)
 
 Project Report link: [final_project.pdf](final_project.pdf)
+### Download the dataset
+```
+cd data/miniimagenet
+gdown --id 1-5fsPbW4QziXPbUoT-Wk3VVJXTy8uiCi
+mv mini-imagenet.zip miniimagenet.zip
+gdown --id 1_bs-Z3fwk-nrOro14jukxuJpygThZaz1
+gdown --id 1WGkHvExgbJxChgcL2cA4TFnAD3ppwAfS
+gdown --id 1GtKCW_Wfs54T6cxzkufNKXk0Qt3ydPks
+cd ..
+```
+
+### Download the miniimagenet vqvae model k=64
+```
+gdown --id 1UGlBPd7U5nBloHDbYRMtbH2x5Zf2FjVa
+```
+
+### Check the results of this trained vqvae 
+See loadvqvaek64.ipynb
+
+### Run it yourself
+https://colab.research.google.com/drive/1BH2RK088d5-w-H4oSrs4t5zJwLxctRXV?usp=sharing
 
 ### Instructions
 1. To train the VQVAE with default arguments as discussed in the report, execute:
