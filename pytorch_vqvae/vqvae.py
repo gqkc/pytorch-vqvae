@@ -144,7 +144,7 @@ def main(args):
 
     # Generate the samples first once
     reconstruction = generate_samples(fixed_images, model, args)
-    grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
+    grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=False)
     writer.add_image('reconstruction', grid, 0)
 
     best_loss = -1.
@@ -154,7 +154,7 @@ def main(args):
         loss, _ = test(valid_loader, model, args, writer)
 
         reconstruction = generate_samples(fixed_images, model, args)
-        grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
+        grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=False)
         # wandb.log({"reconstructions": wandb.Image(grid)})
         if epoch % args.log_interval == 0:
             wandb.log({"reconstruction": wandb.Image(grid)})
