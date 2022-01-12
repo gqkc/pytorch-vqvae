@@ -110,11 +110,7 @@ def main(args):
             num_channels = 3
         valid_dataset = test_dataset
     elif args.dataset == 'miniimagenet':
-        transform = transforms.Compose([
-            #transforms.RandomResizedCrop(128),
-            #transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
+        transform = None
         # Define the train, valid & test datasets
         train_dataset = MiniImagenet(args.data_folder, mode="train",
                                      download=True, transform=transform)
