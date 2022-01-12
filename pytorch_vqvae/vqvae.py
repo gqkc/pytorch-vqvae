@@ -1,13 +1,14 @@
+from datetime import datetime
+
 import torch
 import torch.nn.functional as F
+import wandb
+from tensorboardX import SummaryWriter
 from torchvision import transforms, datasets
 from torchvision.utils import make_grid
 
-from pytorch_vqvae.modules import VectorQuantizedVAE
 from pytorch_vqvae.datasets import MiniImagenet
-import wandb
-from datetime import datetime
-from tensorboardX import SummaryWriter
+from pytorch_vqvae.modules import VectorQuantizedVAE
 
 
 def train(data_loader, model, optimizer, args, writer):
