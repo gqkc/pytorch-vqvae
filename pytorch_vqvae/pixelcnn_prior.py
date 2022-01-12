@@ -29,7 +29,7 @@ def train(data_loader, model, prior, optimizer, args, writer):
 
         # Logs
         writer.add_scalar('loss/train', loss.item(), args.steps)
-        wandb.log({'loss/train', loss.item()})
+        wandb.log({'loss/train': loss.item()})
 
         optimizer.step()
         args.steps += 1
