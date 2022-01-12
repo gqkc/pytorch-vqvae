@@ -6,6 +6,8 @@ from pytorch_vqvae.modules import VectorQuantizedVAE, GatedPixelCNN
 from pytorch_vqvae.datasets import MiniImagenet
 from torchvision import transforms, datasets
 from tensorboardX import SummaryWriter
+import wandb
+from datetime import datetime
 
 
 def train(data_loader, model, prior, optimizer, args, writer):
@@ -27,6 +29,7 @@ def train(data_loader, model, prior, optimizer, args, writer):
 
         # Logs
         writer.add_scalar('loss/train', loss.item(), args.steps)
+        wandb.log({'loss/train', loss.item()})
 
         optimizer.step()
         args.steps += 1
@@ -50,7 +53,7 @@ def test(data_loader, model, prior, args, writer):
 
     # Logs
     writer.add_scalar('loss/valid', loss.item(), args.steps)
-
+    wandb.log({'loss/valid': loss.item()})
     return loss.item()
 
 
@@ -114,15 +117,16 @@ def main(args):
     fixed_images, _ = next(iter(test_loader))
     fixed_grid = make_grid(fixed_images, nrow=8, range=(-1, 1), normalize=True)
     writer.add_image('original', fixed_grid, 0)
+    wandb.log({"reconstruction": wandb.Image(fixed_grid)})
 
     model = VectorQuantizedVAE(num_channels, args.hidden_size_vae, args.k).to(args.device)
     with open(args.model, 'rb') as f:
-        state_dict = torch.load(f)
+        state_dict = torch.load(f, map_location=args.device)
         model.load_state_dict(state_dict)
     model.eval()
 
     prior = GatedPixelCNN(args.k, args.hidden_size_prior,
-                          args.num_layers, n_classes=10).to(args.device)
+                          args.num_layers, n_classes=len(train_dataset._label_encoder)).to(args.device)
     optimizer = torch.optim.Adam(prior.parameters(), lr=args.lr)
 
     best_loss = -1.
@@ -175,7 +179,7 @@ if __name__ == '__main__':
     # Miscellaneous
     parser.add_argument('--output-folder', type=str, default='prior',
                         help='name of the output folder (default: prior)')
-    parser.add_argument('--num-workers', type=int, default=mp.cpu_count() - 1,
+    parser.add_argument('--num-workers', type=int, default=1,
                         help='number of workers for trajectories sampling (default: {0})'.format(mp.cpu_count() - 1))
     parser.add_argument('--device', type=str, default='cpu',
                         help='set the device (cpu or cuda, default: cpu)')
@@ -198,4 +202,12 @@ if __name__ == '__main__':
     args.steps = 0
 
     os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
+
+    run_name = datetime.now().strftime("train-%Y-%m-%d-%H-%M")
+    wandb.init(
+        project=f"pixelcnn_{args.dataset}",
+        entity='cmap_vq',
+        config=None,
+        name=f"{run_name}_{args.dataset}",
+    )
     main(args)
