@@ -80,7 +80,7 @@ class MiniImagenet(data.Dataset):
 
     def _check_exists(self):
         print(os.path.exists(self.image_folder))
-        print(self.image_folder)
+        print(os.path.abspath(self.image_folder))
         print(os.path.exists(self.split_filename))
         print(self.split_filename)
 
