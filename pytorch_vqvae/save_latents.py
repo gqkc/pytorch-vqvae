@@ -6,7 +6,7 @@ from torchvision import transforms, datasets
 
 from pytorch_vqvae.datasets import MiniImagenet
 from pytorch_vqvae.modules import VectorQuantizedVAE
-
+import tqdm
 
 def model_ze(model, imgs):
     inputs = model.encoder(imgs).permute(0, 2, 3, 1).contiguous()
@@ -29,7 +29,7 @@ def get_latent_dataset(data_loader: iter, model: torch.nn.Module, device: torch.
     with torch.no_grad():
         features_arr = []
         labels_arr = []
-        for batch, labels in data_loader:
+        for batch, labels in tqdm.tqdm(data_loader):
 
             features = model_ze(model, batch.to(device))
             if type(features) == tuple:

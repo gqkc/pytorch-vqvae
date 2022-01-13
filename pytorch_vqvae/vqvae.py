@@ -12,7 +12,7 @@ from pytorch_vqvae.modules import VectorQuantizedVAE
 
 
 def train(data_loader, model, optimizer, args, writer):
-    for images, _ in data_loader:
+    for images in data_loader:
         images = images.to(args.device)
 
         optimizer.zero_grad()
@@ -40,7 +40,7 @@ def train(data_loader, model, optimizer, args, writer):
 def test(data_loader, model, args, writer):
     with torch.no_grad():
         loss_recons, loss_vq = 0., 0.
-        for images, _ in data_loader:
+        for images in data_loader:
             images = images.to(args.device)
             x_tilde, z_e_x, z_q_x = model(images)
             loss_recons += F.mse_loss(x_tilde, images)
@@ -68,7 +68,7 @@ def generate_samples(images, model, args):
 def main(args):
     run_name = datetime.now().strftime("train-%Y-%m-%d-%H-%M")
 
-    run = wandb.init(
+    wandb.init(
         project=f"vq_{args.dataset}",
         entity='cmap_vq',
         config=None,
@@ -110,32 +110,25 @@ def main(args):
             num_channels = 3
         valid_dataset = test_dataset
     elif args.dataset == 'miniimagenet':
-        transform = transforms.Compose([
-            transforms.RandomResizedCrop(128),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-        ])
+
         # Define the train, valid & test datasets
-        train_dataset = MiniImagenet(args.data_folder, train=True,
-                                     download=True, transform=transform)
-        valid_dataset = MiniImagenet(args.data_folder, valid=True,
-                                     download=True, transform=transform)
-        test_dataset = MiniImagenet(args.data_folder, test=True,
-                                    download=True, transform=transform)
+        train_dataset = MiniImagenet(args.data_folder, split="train")
+        valid_dataset = MiniImagenet(args.data_folder, split="val")
+        test_dataset = MiniImagenet(args.data_folder, split="test")
         num_channels = 3
 
     # Define the data loaders
     train_loader = torch.utils.data.DataLoader(train_dataset,
-                                               batch_size=args.batch_size, shuffle=False,
-                                               num_workers=args.num_workers, pin_memory=True)
+                                               batch_size=args.batch_size, shuffle=True,
+                                               num_workers=args.num_workers)
     valid_loader = torch.utils.data.DataLoader(valid_dataset,
-                                               batch_size=args.batch_size, shuffle=False, drop_last=True,
-                                               num_workers=args.num_workers, pin_memory=True)
+                                               batch_size=args.batch_size, shuffle=False,
+                                               num_workers=args.num_workers)
     test_loader = torch.utils.data.DataLoader(test_dataset,
-                                              batch_size=16, shuffle=True)
+                                              batch_size=16, shuffle=False)
 
     # Fixed images for Tensorboard
-    fixed_images, _ = next(iter(test_loader))
+    fixed_images = next(iter(test_loader))
     fixed_grid = make_grid(fixed_images, nrow=8, range=(-1, 1), normalize=True)
     writer.add_image('original', fixed_grid, 0)
     wandb.log({"original": wandb.Image(fixed_grid)})
