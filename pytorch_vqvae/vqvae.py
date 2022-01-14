@@ -7,7 +7,7 @@ from tensorboardX import SummaryWriter
 from torchvision import transforms, datasets
 from torchvision.utils import make_grid
 
-from pytorch_vqvae.datasets import MiniImagenet
+from pytorch_vqvae.datasets import MiniImagenet, CelebADataset
 from pytorch_vqvae.modules import VectorQuantizedVAE
 
 
@@ -123,10 +123,15 @@ def main(args):
         test_dataset = MiniImagenet(args.data_folder, test=True,
                                     download=True, transform=transform)
         num_channels = 3
+    elif args.dataset == "celeba":
+        train_dataset = CelebADataset(128, args.data_folder, split="train")
+        valid_dataset = CelebADataset(128, args.data_folder, split="val")
+        test_dataset = CelebADataset(128, args.data_folder, split="test")
+        num_channels = 3
 
     # Define the data loaders
     train_loader = torch.utils.data.DataLoader(train_dataset,
-                                               batch_size=args.batch_size, shuffle=False,
+                                               batch_size=args.batch_size, shuffle=True,
                                                num_workers=args.num_workers, pin_memory=True)
     valid_loader = torch.utils.data.DataLoader(valid_dataset,
                                                batch_size=args.batch_size, shuffle=False, drop_last=True,

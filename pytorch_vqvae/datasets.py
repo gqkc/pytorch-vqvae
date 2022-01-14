@@ -2,6 +2,9 @@ import os
 import csv
 import torch.utils.data as data
 from PIL import Image
+import torch
+import torchvision
+
 
 def pil_loader(path):
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
@@ -10,8 +13,8 @@ def pil_loader(path):
         img = Image.open(f)
         return img.convert('RGB')
 
-class MiniImagenet(data.Dataset):
 
+class MiniImagenet(data.Dataset):
     base_folder = 'data/miniimagenet'
     filename = 'miniimagenet.zip'
     splits = {
@@ -32,8 +35,8 @@ class MiniImagenet(data.Dataset):
 
         if not (((train ^ valid ^ test) ^ (train & valid & test))):
             raise ValueError('One and only one of `train`, `valid` or `test` '
-                'must be True (train={0}, valid={1}, test={2}).'.format(train,
-                valid, test))
+                             'must be True (train={0}, valid={1}, test={2}).'.format(train,
+                                                                                     valid, test))
 
         self.image_folder = os.path.join(os.path.expanduser(root), 'images')
         if train:
@@ -55,7 +58,7 @@ class MiniImagenet(data.Dataset):
         self._data = []
         with open(self.split_filename, 'r') as f:
             reader = csv.reader(f)
-            next(reader) # Skip the header
+            next(reader)  # Skip the header
             for line in reader:
                 self._data.append(tuple(line))
         self._fit_label_encoding()
@@ -75,11 +78,11 @@ class MiniImagenet(data.Dataset):
         _, labels = zip(*self._data)
         unique_labels = set(labels)
         self._label_encoder = dict((label, idx)
-            for (idx, label) in enumerate(unique_labels))
+                                   for (idx, label) in enumerate(unique_labels))
 
     def _check_exists(self):
         return (os.path.exists(self.image_folder)
-            and os.path.exists(self.split_filename))
+                and os.path.exists(self.split_filename))
 
     def download(self):
         from shutil import copyfile
@@ -115,3 +118,42 @@ class MiniImagenet(data.Dataset):
 
     def __len__(self):
         return len(self._data)
+
+
+class CelebADataset(torch.utils.data.Dataset):
+    """
+    ### CelebA HQ dataset
+    """
+
+    def __init__(self, image_size: int, path: str, split: str):
+        super().__init__()
+        import glob
+        # CelebA images folder
+        # List of files
+        self._files = [p for p in glob.glob(f'{path}/*.jpg')]
+        if split == "train":
+            self._files = self._files[0:-2000]
+        elif split == "val":
+            self._files = self._files[-2000:-1000]
+        else:
+            self._files = self._files[-1000:-1]
+
+        # Transformations to resize the image and convert to tensor
+        self._transform = torchvision.transforms.Compose([
+            torchvision.transforms.Resize(image_size),
+            torchvision.transforms.ToTensor(),
+        ])
+
+    def __len__(self):
+        """
+        Size of the dataset
+        """
+        return len(self._files)
+
+    def __getitem__(self, index: int):
+        """
+        Get an image
+        """
+        img = Image.open(self._files[index])
+        data = self._transform(img)
+        return data, torch.ones((data.size(0)))
