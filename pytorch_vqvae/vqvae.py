@@ -201,7 +201,7 @@ if __name__ == '__main__':
                         help='batch size (default: 128)')
     parser.add_argument('--num-epochs', type=int, default=100,
                         help='number of epochs (default: 100)')
-    parser.add_argument('--lr', type=float, default=2e-4,
+    parser.add_argument('--lr', type=float, default=3e-4,
                         help='learning rate for Adam optimizer (default: 2e-4)')
     parser.add_argument('--beta', type=float, default=1.0,
                         help='contribution of commitment loss, between 0.1 and 2.0 (default: 1.0)')
