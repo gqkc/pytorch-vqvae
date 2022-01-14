@@ -85,6 +85,7 @@ def main(args):
         transforms.ToTensor(),
         transforms.Normalize((0.5), (0.5))
     ])
+    normalize = True
     if args.dataset in ['mnist', 'fashion-mnist', 'cifar10']:
 
         if args.dataset == 'mnist':
@@ -128,6 +129,7 @@ def main(args):
         valid_dataset = CelebADataset(128, args.data_folder, split="val")
         test_dataset = CelebADataset(128, args.data_folder, split="test")
         num_channels = 3
+        normalize = False
 
     # Define the data loaders
     train_loader = torch.utils.data.DataLoader(train_dataset,
@@ -141,7 +143,7 @@ def main(args):
 
     # Fixed images for Tensorboard
     fixed_images, _ = next(iter(test_loader))
-    fixed_grid = make_grid(fixed_images, nrow=8, range=(-1, 1), normalize=True)
+    fixed_grid = make_grid(fixed_images, nrow=8, range=(-1, 1), normalize=normalize)
     writer.add_image('original', fixed_grid, 0)
     wandb.log({"original": wandb.Image(fixed_grid)})
 
@@ -153,7 +155,7 @@ def main(args):
 
     # Generate the samples first once
     reconstruction = generate_samples(fixed_images, model, args)
-    grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
+    grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=normalize)
     writer.add_image('reconstruction', grid, 0)
 
     best_loss = -1.
@@ -163,7 +165,7 @@ def main(args):
         loss, _ = test(valid_loader, model, args, writer)
 
         reconstruction = generate_samples(fixed_images, model, args)
-        grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=True)
+        grid = make_grid(reconstruction.cpu(), nrow=8, range=(-1, 1), normalize=normalize)
         # wandb.log({"reconstructions": wandb.Image(grid)})
         if epoch % args.log_interval == 0:
             wandb.log({"reconstruction": wandb.Image(grid)})
