@@ -129,7 +129,7 @@ class VectorQuantizedVAE(nn.Module):
             nn.ConvTranspose2d(dim, dim, 4, 2, pad),
             nn.BatchNorm2d(dim),
             nn.ReLU(True),
-            nn.ConvTranspose2d(dim, input_dim, 4, 2, pad),
+            nn.ConvTranspose2d(dim, input_dim, 4, 2, pad-1),
             nn.Tanh()
         )
 
