@@ -76,7 +76,8 @@ def main(args):
     )
 
     writer = SummaryWriter('./logs/{0}'.format(args.output_folder))
-    save_filename = './models/{0}'.format(args.output_folder)
+    save_filename = './models/{0}'.format(f"{run_name}_{args.output_folder}")
+    os.makedirs(save_filename)
     transform_3 = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
